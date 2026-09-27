@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Todo App</title>
+<style>
+  * { box-sizing: border-box; margin: 0; font-family: system-ui, sans-serif; }
+  body { background: #f4f1ea; display: flex; justify-content: center; padding: 3rem 1rem; }
+  main { width: 100%; max-width: 420px; }
+  h1 { font-size: 1.5rem; margin-bottom: 1rem; color: #2c2418; }
+  form { display: flex; gap: .5rem; margin-bottom: 1rem; }
+  input { flex: 1; padding: .6rem .8rem; border: 1px solid #cfc7b8; border-radius: 8px; font-size: 1rem; }
+  button { padding: .6rem 1rem; border: 0; border-radius: 8px; background: #e07a3f; color: #fff; font-size: 1rem; cursor: pointer; }
+  ul { list-style: none; padding: 0; }
+  li { display: flex; align-items: center; gap: .6rem; background: #fff; padding: .6rem .8rem; border-radius: 8px; margin-bottom: .5rem; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+  li.done span { text-decoration: line-through; color: #9a917f; }
+  li span { flex: 1; cursor: pointer; }
+  li .del { background: none; color: #b0492f; padding: 0 .3rem; }
+  .empty { color: #9a917f; text-align: center; padding: 1rem 0; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Todo</h1>
+  <form id="f"><input id="in" placeholder="Add a task..." autocomplete="off" required><button>Add</button></form>
+  <ul id="list"></ul>
+  <p class="empty" id="empty">Nothing yet. Add your first task.</p>
+</main>
+<script>
+const list = document.getElementById('list'), empty = document.getElementById('empty');
+let todos = JSON.parse(localStorage.getItem('todos') || '[]');
+function save() { localStorage.setItem('todos', JSON.stringify(todos)); }
+function render() {
+  list.innerHTML = '';
+  todos.forEach((t, i) => {
+    const li = document.createElement('li');
+    li.className = t.done ? 'done' : '';
+    const s = document.createElement('span');
+    s.textContent = t.text;
+    s.onclick = () => { t.done = !t.done; save(); render(); };
+    const d = document.createElement('button');
+    d.textContent = 'x'; d.className = 'del';
+    d.onclick = () => { todos.splice(i, 1); save(); render(); };
+    li.append(s, d); list.append(li);
+  });
+  empty.style.display = todos.length ? 'none' : 'block';
+}
+document.getElementById('f').onsubmit = e => {
+  e.preventDefault();
+  const v = document.getElementById('in').value.trim();
+  if (v) { todos.push({ text: v, done: false }); save(); render(); e.target.reset(); }
+};
+render();
+</script>
+</body>
+</html>
